@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MangaHingli I'llsh PRO — Manga, Manhwa & Novel Hinglish Translator</title>
+  <title>MangaHinglish PRO — Manga, Manhwa & Novel Hinglish Translator</title>
   <meta name="theme-color" content="#09090b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -58,7 +58,6 @@
   <!-- TOP COMPACT BAR -->
   <header class="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-3 py-2">
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-2">
-      <!-- Mode Switcher (Left) -->
       <div class="flex items-center bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
         <button id="tabComic" onclick="switchAppMode('comic')" class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-500 text-white transition">
           💬 Manga/Manhwa
@@ -68,7 +67,6 @@
         </button>
       </div>
 
-      <!-- Right Controls: Install + API Key + Compact Brand Badge -->
       <div class="flex items-center gap-1.5">
         <button id="installPwaBtn" onclick="triggerInstall()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md items-center gap-1 shadow">
           📲 Install
@@ -86,10 +84,7 @@
 
   <!-- ==================== COMIC (MANGA / MANHWA) VIEW ==================== -->
   <main id="comicSection" class="flex-1 max-w-3xl w-full mx-auto px-3 py-2.5 flex flex-col gap-2.5">
-
-    <!-- Action Controls Bar -->
     <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2">
-      <!-- Reading Direction Switch -->
       <div class="flex items-center bg-zinc-950 p-0.5 rounded-lg border border-zinc-800">
         <button id="dirManhwa" onclick="setDirection('manhwa')" class="px-2 py-1 rounded text-[11px] font-bold bg-zinc-800 text-orange-400 transition">
           Manhwa ↓
@@ -99,14 +94,12 @@
         </button>
       </div>
 
-      <!-- Tone Selector -->
       <select id="comicTone" class="bg-zinc-950 border border-zinc-800 text-zinc-200 text-[11px] font-semibold rounded-lg px-2 py-1.5 outline-none">
         <option value="natural">🔥 Natural Hinglish</option>
         <option value="dramatic">⚔️ Action / Dark</option>
         <option value="casual">😂 Desi / Funny</option>
       </select>
 
-      <!-- Upload & Samples -->
       <div class="flex items-center gap-1.5">
         <label class="cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700 transition">
           📁 Upload
@@ -118,7 +111,6 @@
       </div>
     </div>
 
-    <!-- Built-in Sample Selector Pills -->
     <div id="sampleDrawer" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
       <button onclick="loadSample(0)" id="sampleBtn0" class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">
         1. B&W Action Manga ←
@@ -131,14 +123,12 @@
       </button>
     </div>
 
-    <!-- Primary Translate & Reader Tools -->
     <div class="flex flex-wrap items-center justify-between gap-2 bg-zinc-900/60 border border-zinc-800/80 rounded-xl px-2.5 py-2">
       <button id="translateComicBtn" onclick="translateCurrentPage()" class="glow-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-zinc-950 font-extrabold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition">
         ✨ Translate Bubbles
       </button>
 
       <div class="flex items-center gap-2">
-        <!-- Hold / Toggle Original -->
         <button
           id="toggleOriginalBtn"
           onmousedown="setShowOriginal(true)"
@@ -152,7 +142,6 @@
           👁️ Original
         </button>
 
-        <!-- Bubble Font Size -->
         <div class="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1">
           <span class="text-[10px] text-zinc-400 font-bold">A</span>
           <input type="range" id="bubbleFontRange" min="9" max="20" value="12" oninput="updateBubbleFontSize(this.value)" class="w-16 accent-orange-500 cursor-pointer" />
@@ -161,17 +150,14 @@
       </div>
     </div>
 
-    <!-- Multi-Page Pagination (if user uploads multiple images) -->
     <div id="multiPageBar" class="hidden items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs">
       <button onclick="prevPage()" class="px-2 py-1 bg-zinc-800 rounded font-bold">◀ Prev</button>
       <span id="pageIndicator" class="font-bold text-orange-400">Page 1 of 1</span>
       <button onclick="nextPage()" class="px-2 py-1 bg-zinc-800 rounded font-bold">Next ▶</button>
     </div>
 
-    <!-- Status / Error Banner -->
     <div id="comicStatus" class="hidden text-xs px-3 py-2 rounded-lg border"></div>
 
-    <!-- Comic Canvas Container with Direct In-Bubble Overlays -->
     <div class="relative w-full bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl flex justify-center">
       <div id="comicStage" class="relative inline-block w-full max-w-[540px]">
         <img id="comicImage" src="" alt="Comic Page" class="w-full h-auto block select-none" />
@@ -179,7 +165,6 @@
       </div>
     </div>
 
-    <!-- Dialogue List Drawer (Backup clear reading view) -->
     <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">💬 Bubble Dialogues (Reading Order)</h3>
@@ -193,7 +178,6 @@
 
   <!-- ==================== NOVEL / LIGHT NOVEL VIEW ==================== -->
   <main id="novelSection" class="hidden flex-1 max-w-3xl w-full mx-auto px-3 py-2.5 flex-col gap-2.5">
-    <!-- Novel Toolbar -->
     <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-1.5">
         <button onclick="openNovelInputModal()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700">
@@ -205,18 +189,15 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- Theme buttons -->
         <button onclick="setNovelTheme('dark')" class="w-6 h-6 rounded-full bg-zinc-950 border border-zinc-600" title="Dark"></button>
         <button onclick="setNovelTheme('sepia')" class="w-6 h-6 rounded-full bg-[#f4ecd8] border border-amber-700" title="Sepia"></button>
         <button onclick="setNovelTheme('light')" class="w-6 h-6 rounded-full bg-white border border-zinc-400" title="Light"></button>
 
-        <!-- Novel Font Size -->
         <button onclick="changeNovelFont(-1)" class="px-2 py-1 bg-zinc-800 rounded text-xs font-bold">A-</button>
         <button onclick="changeNovelFont(1)" class="px-2 py-1 bg-zinc-800 rounded text-xs font-bold">A+</button>
       </div>
     </div>
 
-    <!-- Translate Novel CTA -->
     <div class="flex items-center justify-between gap-2 bg-zinc-900/60 border border-zinc-800 rounded-xl px-3 py-2">
       <button id="translateNovelBtn" onclick="translateNovelChapter()" class="glow-btn bg-gradient-to-r from-orange-500 to-amber-500 text-zinc-950 font-extrabold text-xs px-4 py-2 rounded-lg">
         ✨ Translate Chapter to Hinglish
@@ -228,7 +209,6 @@
 
     <div id="novelStatus" class="hidden text-xs px-3 py-2 rounded-lg border"></div>
 
-    <!-- Novel Reader Box -->
     <article id="novelReaderBox" class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-6 novel-font text-[16px] leading-relaxed text-zinc-100 whitespace-pre-line min-h-[340px]">
     </article>
   </main>
@@ -277,9 +257,7 @@
       </div>
     </div>
   </div>
-
-  <script>
-    // ==================== PWA SERVICE WORKER & INSTALL ====================
+    <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -303,7 +281,6 @@
       document.getElementById('installPwaBtn').classList.add('hidden');
     }
 
-    // ==================== API KEY MANAGEMENT ====================
     function getApiKey() {
       return localStorage.getItem('MANGAHINGLISH_GEMINI_KEY') || '';
     }
@@ -339,7 +316,6 @@
       updateApiIndicator();
     }
 
-    // ==================== BUILT-IN SAMPLE COMIC GENERATOR ====================
     function createSamplePageDataURL(type) {
       const canvas = document.createElement('canvas');
       canvas.width = 720;
@@ -347,14 +323,11 @@
       const ctx = canvas.getContext('2d');
 
       if (type === 0) {
-        // Sample 0: B&W Action Manga (Right-to-Left)
         ctx.fillStyle = '#f8fafc';
         ctx.fillRect(0, 0, 720, 1040);
 
-        // Panel 1 (Top)
         ctx.fillStyle = '#18181b';
         ctx.fillRect(24, 24, 672, 460);
-        // Speed lines
         ctx.strokeStyle = '#3f3f46';
         ctx.lineWidth = 3;
         for (let i = 0; i < 45; i++) {
@@ -364,23 +337,19 @@
           ctx.lineTo(360 + Math.cos(angle) * 450, 250 + Math.sin(angle) * 450);
           ctx.stroke();
         }
-        // Character silhouette
         ctx.fillStyle = '#09090b';
         ctx.beginPath();
         ctx.arc(360, 290, 95, 0, Math.PI * 2);
         ctx.fill();
-        // Glowing eyes
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(320, 275, 28, 10);
         ctx.fillRect(372, 275, 28, 10);
 
-        // Panel 2 (Bottom Left) & Panel 3 (Bottom Right)
         ctx.fillStyle = '#27272a';
         ctx.fillRect(24, 504, 326, 512);
         ctx.fillStyle = '#09090b';
         ctx.fillRect(370, 504, 326, 512);
 
-        // Katana slash line
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 8;
         ctx.beginPath();
@@ -388,15 +357,9 @@
         ctx.lineTo(680, 530);
         ctx.stroke();
 
-        // Bubble 1 (Top Right - Manga starts right!)
         drawSpeechBubble(ctx, 545, 130, 135, 82, '#ffffff', '#000000', ['WHO ARE YOU?!', 'HOW DID YOU GET', 'PAST THE GATE?!']);
-        // Bubble 2 (Top Left)
-                drawSpeechBubble(ctx, 175, 365, 135, 78, '#ffffff', '#000000', ['I WON\'T LET YOU', 'TAKE ANOTHER',
-
- 'STEP FORWARD!']);
-        // Bubble 3 (Bottom Right)
+        drawSpeechBubble(ctx, 175, 365, 135, 78, '#ffffff', '#000000', ['I WON\'T LET YOU', 'TAKE ANOTHER', 'STEP FORWARD!']);
         drawSpeechBubble(ctx, 530, 635, 135, 82, '#ffffff', '#000000', ['HE\'S TOO FAST...', 'I CAN\'T EVEN SEE', 'HIS BLADE!']);
-        // Bubble 4 (Bottom Left)
         drawSpeechBubble(ctx, 185, 875, 135, 78, '#ffffff', '#000000', ['IT\'S OVER FOR', 'YOU RIGHT HERE!']);
       } else if (type === 1) {
         const grad = ctx.createLinearGradient(0, 0, 0, 1040);
@@ -528,6 +491,7 @@ Blue sparks erupted around Arjun's coat, turning the falling raindrops into stea
         sortAndRenderBubbles();
       }
     }
+
     function loadSample(idx) {
       [0, 1, 2].forEach((i) => {
         const b = document.getElementById(`sampleBtn${i}`);
@@ -625,6 +589,46 @@ Blue sparks erupted around Arjun's coat, turning the falling raindrops into stea
       box.textContent = msg;
     }
 
+    // ==================== SMART MULTI-MODEL AUTO-FALLBACK ====================
+    async function callGeminiWithFallback(apiKey, payload, statusFn) {
+      const models = [
+        'gemini-3.8-flash-lite',
+        'gemini-3.8-flash',
+        'gemini-3.0-flash',
+        'gemini-2.0-flash',
+        'gemini-2.0-flash-lite'
+      ];
+      let lastError = 'All models busy';
+
+      for (let round = 1; round <= 2; round++) {
+        for (let i = 0; i < models.length; i++) {
+          const model = models[i];
+          if (statusFn) {
+            statusFn(`⚡ Trying ${model} (Attempt ${round}, ${i + 1}/${models.length})...`, 'info');
+          }
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              }
+            );
+            const data = await res.json();
+            if (res.ok) {
+              return data;
+            }
+            lastError = data?.error?.message || `HTTP ${res.status}`;
+            await new Promise((r) => setTimeout(r, 900));
+          } catch (e) {
+            lastError = e.message;
+          }
+        }
+      }
+      throw new Error(lastError);
+    }
+
     async function translateCurrentPage() {
       const apiKey = getApiKey();
       if (!apiKey) {
@@ -665,32 +669,24 @@ For each speech bubble, return a JSON array of objects with:
 
 Return ONLY valid JSON array, no markdown fences or extra commentary.`;
 
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash-lite:generateContent?key=${encodeURIComponent(apiKey)}`,
+        const data = await callGeminiWithFallback(
+          apiKey,
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: prompt },
-                    { inline_data: { mime_type: mimeType, data: base64Data } }
-                  ]
-                }
-              ],
-              generationConfig: {
-                temperature: 0.3,
-                responseMimeType: 'application/json'
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: mimeType, data: base64Data } }
+                ]
               }
-            })
-          }
+            ],
+            generationConfig: {
+              temperature: 0.3,
+              responseMimeType: 'application/json'
+            }
+          },
+          showComicStatus
         );
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data?.error?.message || 'API request failed');
-        }
 
         const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
         const cleaned = rawText.replace(/```json|```/g, '').trim();
@@ -765,7 +761,8 @@ Return ONLY valid JSON array, no markdown fences or extra commentary.`;
         const item = document.createElement('div');
         item.className = 'bg-zinc-950/90 border border-zinc-800 rounded-lg p-2 flex items-start gap-2';
         item.innerHTML = `
-          <span class="shrink-0 w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 font-bold text-[11px] flex items-center justify-center">${idx + 1}</span>
+                  item.innerHTML = `
+                  <span class="shrink-0 w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 font-bold text-[11px] flex items-center justify-center">${idx + 1}</span>
           <div class="flex-1">
             <p class="text-zinc-100 font-semibold">${escapeHtml(b.hinglish || '')}</p>
             <p class="text-[11px] text-zinc-500 mt-0.5">${escapeHtml(b.original || '')}</p>
@@ -858,20 +855,16 @@ Keep character names, RPG/System terms (like Level, S-Rank, Skill), and paragrap
 Chapter Text:
 ${novelOriginalText}`;
 
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+        const data = await callGeminiWithFallback(
+          apiKey,
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.45 }
-            })
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.45 }
+          },
+          (msg) => {
+            status.textContent = msg;
           }
         );
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error?.message || 'Translation failed');
 
         novelHinglishText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
         showingNovelOriginal = false;
