@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MangaHinglish PRO — Manga, Manhwa & Novel Hinglish Translator</title>
+  <meta name="theme-color" content="#09090b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3145/3145765.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .comic-font {
+      font-family: 'Comic Neue', cursive, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .novel-font {
+      font-family: 'Merriweather', Georgia, serif;
+    }
+    .bubble-overlay {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 9999px;
+      padding: 4px 7px;
+      line-height: 1.15;
+      word-break: break-word;
+      overflow: hidden;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+      user-select: none;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(249, 115, 22, 0.45); }
+      50% { box-shadow: 0 0 22px rgba(249, 115, 22, 0.85); }
+    }
+    .glow-btn { animation: pulseGlow 2.2s infinite; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP COMPACT BAR -->
+  <header class="sticky top-0 z-40 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-3 py-2">
+    <div class="max-w-3xl mx-auto flex items-center justify-between gap-2">
+      <!-- Mode Switcher (Left) -->
+      <div class="flex items-center bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
+        <button id="tabComic" onclick="switchAppMode('comic')" class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-500 text-white transition">
+          💬 Manga/Manhwa
+        </button>
+        <button id="tabNovel" onclick="switchAppMode('novel')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-zinc-400 hover:text-white transition">
+          📖 Novel/LN
+        </button>
+      </div>
+
+      <!-- Right Controls: Install + API Key + Compact Brand Badge -->
+      <div class="flex items-center gap-1.5">
+        <button id="installPwaBtn" onclick="triggerInstall()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md items-center gap-1 shadow">
+          📲 Install
+        </button>
+        <button onclick="openApiModal()" id="apiKeyStatusBtn" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-[11px] font-semibold px-2 py-1 rounded-md flex items-center gap-1" title="Set Free Gemini API Key">
+          ⚙️ <span id="apiDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Key
+        </button>
+        <div class="text-right leading-none pl-1">
+          <span class="text-[11px] font-extrabold tracking-tight text-white">MangaHinglish</span>
+          <span class="block text-[9px] font-black text-orange-400 tracking-widest">PRO</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== COMIC (MANGA / MANHWA) VIEW ==================== -->
+  <main id="comicSection" class="flex-1 max-w-3xl w-full mx-auto px-3 py-2.5 flex flex-col gap-2.5">
+
+    <!-- Action Controls Bar -->
+    <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2">
+      <!-- Reading Direction Switch -->
+      <div class="flex items-center bg-zinc-950 p-0.5 rounded-lg border border-zinc-800">
+        <button id="dirManhwa" onclick="setDirection('manhwa')" class="px-2 py-1 rounded text-[11px] font-bold bg-zinc-800 text-orange-400 transition">
+          Manhwa ↓
+        </button>
+        <button id="dirManga" onclick="setDirection('manga')" class="px-2 py-1 rounded text-[11px] font-semibold text-zinc-400 hover:text-white transition">
+          Manga ←
+        </button>
+      </div>
+
+      <!-- Tone Selector -->
+      <select id="comicTone" class="bg-zinc-950 border border-zinc-800 text-zinc-200 text-[11px] font-semibold rounded-lg px-2 py-1.5 outline-none">
+        <option value="natural">🔥 Natural Hinglish</option>
+        <option value="dramatic">⚔️ Action / Dark</option>
+        <option value="casual">😂 Desi / Funny</option>
+      </select>
+
+      <!-- Upload & Samples -->
+      <div class="flex items-center gap-1.5">
+        <label class="cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700 transition">
+          📁 Upload
+          <input type="file" id="comicFileInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)" />
+        </label>
+        <button onclick="toggleSampleDrawer()" class="bg-zinc-800 hover:bg-zinc-700 text-amber-300 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700 transition">
+          🎨 Samples
+        </button>
+      </div>
+    </div>
+
+    <!-- Built-in Sample Selector Pills -->
+    <div id="sampleDrawer" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+      <button onclick="loadSample(0)" id="sampleBtn0" class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">
+        1. B&W Action Manga ←
+      </button>
+      <button onclick="loadSample(1)" id="sampleBtn1" class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800">
+        2. Hunter Manhwa ↓
+      </button>
+      <button onclick="loadSample(2)" id="sampleBtn2" class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800">
+        3. Dark Demon Fantasy
+      </button>
+    </div>
+
+    <!-- Primary Translate & Reader Tools -->
+    <div class="flex flex-wrap items-center justify-between gap-2 bg-zinc-900/60 border border-zinc-800/80 rounded-xl px-2.5 py-2">
+      <button id="translateComicBtn" onclick="translateCurrentPage()" class="glow-btn bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-zinc-950 font-extrabold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition">
+        ✨ Translate Bubbles
+      </button>
+
+      <div class="flex items-center gap-2">
+        <!-- Hold / Toggle Original -->
+        <button
+          id="toggleOriginalBtn"
+          onmousedown="setShowOriginal(true)"
+          onmouseup="setShowOriginal(false)"
+          onmouseleave="setShowOriginal(false)"
+          ontouchstart="setShowOriginal(true)"
+          ontouchend="setShowOriginal(false)"
+          onclick="toggleOriginalClick()"
+          class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700 select-none"
+        >
+          👁️ Original
+        </button>
+
+        <!-- Bubble Font Size -->
+        <div class="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1">
+          <span class="text-[10px] text-zinc-400 font-bold">A</span>
+          <input type="range" id="bubbleFontRange" min="9" max="20" value="12" oninput="updateBubbleFontSize(this.value)" class="w-16 accent-orange-500 cursor-pointer" />
+          <span class="text-xs text-zinc-200 font-bold">A+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Page Pagination (if user uploads multiple images) -->
+    <div id="multiPageBar" class="hidden items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs">
+      <button onclick="prevPage()" class="px-2 py-1 bg-zinc-800 rounded font-bold">◀ Prev</button>
+      <span id="pageIndicator" class="font-bold text-orange-400">Page 1 of 1</span>
+      <button onclick="nextPage()" class="px-2 py-1 bg-zinc-800 rounded font-bold">Next ▶</button>
+    </div>
+
+    <!-- Status / Error Banner -->
+    <div id="comicStatus" class="hidden text-xs px-3 py-2 rounded-lg border"></div>
+
+    <!-- Comic Canvas Container with Direct In-Bubble Overlays -->
+    <div class="relative w-full bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl flex justify-center">
+      <div id="comicStage" class="relative inline-block w-full max-w-[540px]">
+        <img id="comicImage" src="" alt="Comic Page" class="w-full h-auto block select-none" />
+        <div id="bubblesLayer" class="absolute inset-0 pointer-events-none"></div>
+      </div>
+    </div>
+
+    <!-- Dialogue List Drawer (Backup clear reading view) -->
+    <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">💬 Bubble Dialogues (Reading Order)</h3>
+        <span id="bubbleCountBadge" class="text-[11px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">0 bubbles</span>
+      </div>
+      <div id="dialogueList" class="space-y-2 text-xs text-zinc-300">
+        <p class="text-zinc-500 italic">Click "✨ Translate Bubbles" above to translate speech bubbles directly inside the image.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== NOVEL / LIGHT NOVEL VIEW ==================== -->
+  <main id="novelSection" class="hidden flex-1 max-w-3xl w-full mx-auto px-3 py-2.5 flex-col gap-2.5">
+    <!-- Novel Toolbar -->
+    <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-1.5">
+        <button onclick="openNovelInputModal()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700">
+          📋 Paste / Upload .txt
+        </button>
+        <button onclick="loadSampleNovel()" class="bg-zinc-800 hover:bg-zinc-700 text-amber-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-700">
+          Sample LN
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <!-- Theme buttons -->
+        <button onclick="setNovelTheme('dark')" class="w-6 h-6 rounded-full bg-zinc-950 border border-zinc-600" title="Dark"></button>
+        <button onclick="setNovelTheme('sepia')" class="w-6 h-6 rounded-full bg-[#f4ecd8] border border-amber-700" title="Sepia"></button>
+        <button onclick="setNovelTheme('light')" class="w-6 h-6 rounded-full bg-white border border-zinc-400" title="Light"></button>
+
+        <!-- Novel Font Size -->
+        <button onclick="changeNovelFont(-1)" class="px-2 py-1 bg-zinc-800 rounded text-xs font-bold">A-</button>
+        <button onclick="changeNovelFont(1)" class="px-2 py-1 bg-zinc-800 rounded text-xs font-bold">A+</button>
+      </div>
+    </div>
+
+    <!-- Translate Novel CTA -->
+    <div class="flex items-center justify-between gap-2 bg-zinc-900/60 border border-zinc-800 rounded-xl px-3 py-2">
+      <button id="translateNovelBtn" onclick="translateNovelChapter()" class="glow-btn bg-gradient-to-r from-orange-500 to-amber-500 text-zinc-950 font-extrabold text-xs px-4 py-2 rounded-lg">
+        ✨ Translate Chapter to Hinglish
+      </button>
+      <button id="toggleNovelOrigBtn" onclick="toggleNovelOriginal()" class="bg-zinc-800 text-zinc-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-zinc-700">
+        Show Original
+      </button>
+    </div>
+
+    <div id="novelStatus" class="hidden text-xs px-3 py-2 rounded-lg border"></div>
+
+    <!-- Novel Reader Box -->
+    <article id="novelReaderBox" class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 sm:p-6 novel-font text-[16px] leading-relaxed text-zinc-100 whitespace-pre-line min-h-[340px]">
+    </article>
+  </main>
+
+  <!-- ==================== NOVEL PASTE / UPLOAD MODAL ==================== -->
+  <div id="novelModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-lg w-full p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-sm text-white">📖 Paste Chapter or Upload .txt</h3>
+        <button onclick="closeNovelInputModal()" class="text-zinc-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <label class="block w-full text-center cursor-pointer bg-zinc-800 hover:bg-zinc-700 border border-dashed border-zinc-600 rounded-xl py-2.5 text-xs font-semibold text-orange-300">
+        📂 Choose .txt File from Phone
+        <input type="file" accept=".txt" class="hidden" onchange="handleNovelFileUpload(event)" />
+      </label>
+      <textarea id="novelRawInput" rows="8" placeholder="Yahan English, Japanese, ya Korean novel chapter paste karein..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-zinc-100 outline-none focus:border-orange-500"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeNovelInputModal()" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-semibold">Cancel</button>
+        <button onclick="saveNovelInput()" class="px-4 py-1.5 rounded-lg bg-orange-500 text-zinc-950 text-xs font-extrabold">Load Chapter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== GEMINI API KEY MODAL ==================== -->
+  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-md w-full p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-sm text-white">🔑 Free Gemini API Key Setup</h3>
+        <button onclick="closeApiModal()" class="text-zinc-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <p class="text-xs text-zinc-300 leading-relaxed">
+        GitHub Pages par unlimited Manga, Manhwa aur Novels translate karne ke liye apni free Google Gemini API key dalein (yeh sirf aapke browser mein save rehti hai):
+      </p>
+      <ol class="text-[11px] text-zinc-400 list-decimal pl-4 space-y-1">
+        <li><a href="https://aistudio.google.com/apikey" target="_blank" class="text-orange-400 underline font-semibold">aistudio.google.com/apikey</a> kholein.</li>
+        <li><strong>Create API Key</strong> par click karke key copy karein.</li>
+        <li>Neeche paste karke <strong>Save Key</strong> daba dein.</li>
+      </ol>
+      <input id="geminiApiKeyInput" type="password" placeholder="AIzaSy..." class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-orange-500" />
+      <div class="flex items-center justify-between pt-1">
+        <button onclick="clearApiKey()" class="text-xs text-red-400 hover:underline">Remove Key</button>
+        <div class="flex gap-2">
+          <button onclick="closeApiModal()" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-semibold">Close</button>
+          <button onclick="saveApiKey()" class="px-4 py-1.5 rounded-lg bg-orange-500 text-zinc-950 text-xs font-extrabold">Save Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== PWA SERVICE WORKER & INSTALL ====================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('installPwaBtn');
+      btn.classList.remove('hidden');
+      btn.classList.add('flex');
+    });
+
+    async function triggerInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installPwaBtn').classList.add('hidden');
+    }
+
+    // ==================== API KEY MANAGEMENT ====================
+    function getApiKey() {
+      return localStorage.getItem('MANGAHINGLISH_GEMINI_KEY') || '';
+    }
+    function updateApiIndicator() {
+      const dot = document.getElementById('apiDot');
+      if (getApiKey()) {
+        dot.classList.remove('bg-amber-400');
+        dot.classList.add('bg-emerald-400');
+      } else {
+        dot.classList.remove('bg-emerald-400');
+        dot.classList.add('bg-amber-400');
+      }
+    }
+    function openApiModal() {
+      document.getElementById('geminiApiKeyInput').value = getApiKey();
+      document.getElementById('apiModal').classList.remove('hidden');
+    }
+    function closeApiModal() {
+      document.getElementById('apiModal').classList.add('hidden');
+    }
+    function saveApiKey() {
+      const val = document.getElementById('geminiApiKeyInput').value.trim();
+      if (val) {
+        localStorage.setItem('MANGAHINGLISH_GEMINI_KEY', val);
+        updateApiIndicator();
+        closeApiModal();
+        showComicStatus('✅ API Key saved! Ab aap kisi bhi page ko translate kar sakte hain.', 'success');
+      }
+    }
+    function clearApiKey() {
+      localStorage.removeItem('MANGAHINGLISH_GEMINI_KEY');
+      document.getElementById('geminiApiKeyInput').value = '';
+      updateApiIndicator();
+    }
+
+    // ==================== BUILT-IN SAMPLE COMIC GENERATOR ====================
+    function createSamplePageDataURL(type) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 720;
+      canvas.height = 1040;
+      const ctx = canvas.getContext('2d');
+
+      if (type === 0) {
+        // Sample 0: B&W Action Manga (Right-to-Left)
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, 720, 1040);
+
+        // Panel 1 (Top)
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(24, 24, 672, 460);
+        // Speed lines
+        ctx.strokeStyle = '#3f3f46';
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 45; i++) {
+          ctx.beginPath();
+          ctx.moveTo(360, 250);
+          const angle = (Math.PI * 2 * i) / 45;
+          ctx.lineTo(360 + Math.cos(angle) * 450, 250 + Math.sin(angle) * 450);
+          ctx.stroke();
+        }
+        // Character silhouette
+        ctx.fillStyle = '#09090b';
+        ctx.beginPath();
+        ctx.arc(360, 290, 95, 0, Math.PI * 2);
+        ctx.fill();
+        // Glowing eyes
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(320, 275, 28, 10);
+        ctx.fillRect(372, 275, 28, 10);
+
+        // Panel 2 (Bottom Left) & Panel 3 (Bottom Right)
+        ctx.fillStyle = '#27272a';
+        ctx.fillRect(24, 504, 326, 512);
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(370, 504, 326, 512);
+
+        // Katana slash line
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(390, 980);
+        ctx.lineTo(680, 530);
+        ctx.stroke();
+
+        // Bubble 1 (Top Right - Manga starts right!)
+        drawSpeechBubble(ctx, 545, 130, 135, 82, '#ffffff', '#000000', ['WHO ARE YOU?!', 'HOW DID YOU GET', 'PAST THE GATE?!']);
+        // Bubble 2 (Top Left)
+        drawSpeechBubble(ctx, 175, 365, 135, 78, '#ffffff', '#000000', ['I WON\'T LET YOU', 'TAKE ANOTHER', 'STEP F
