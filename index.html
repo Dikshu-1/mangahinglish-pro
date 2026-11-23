@@ -391,4 +391,507 @@
         // Bubble 1 (Top Right - Manga starts right!)
         drawSpeechBubble(ctx, 545, 130, 135, 82, '#ffffff', '#000000', ['WHO ARE YOU?!', 'HOW DID YOU GET', 'PAST THE GATE?!']);
         // Bubble 2 (Top Left)
-        drawSpeechBubble(ctx, 175, 365, 135, 78, '#ffffff', '#000000', ['I WON\'T LET YOU', 'TAKE ANOTHER', 'STEP F
+                drawSpeechBubble(ctx, 175, 365, 135, 78, '#ffffff', '#000000', ['I WON\'T LET YOU', 'TAKE ANOTHER',
+
+ 'STEP FORWARD!']);
+        // Bubble 3 (Bottom Right)
+        drawSpeechBubble(ctx, 530, 635, 135, 82, '#ffffff', '#000000', ['HE\'S TOO FAST...', 'I CAN\'T EVEN SEE', 'HIS BLADE!']);
+        // Bubble 4 (Bottom Left)
+        drawSpeechBubble(ctx, 185, 875, 135, 78, '#ffffff', '#000000', ['IT\'S OVER FOR', 'YOU RIGHT HERE!']);
+      } else if (type === 1) {
+        const grad = ctx.createLinearGradient(0, 0, 0, 1040);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(0.5, '#1e1b4b');
+        grad.addColorStop(1, '#09090b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 720, 1040);
+
+        const radial = ctx.createRadialGradient(360, 520, 30, 360, 520, 320);
+        radial.addColorStop(0, 'rgba(56, 189, 248, 0.55)');
+        radial.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.fillStyle = radial;
+        ctx.fillRect(0, 150, 720, 700);
+
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.arc(360, 500, 110, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(315, 485, 32, 10);
+        ctx.fillRect(373, 485, 32, 10);
+
+        drawSpeechBubble(ctx, 360, 155, 225, 85, '#ffffff', '#0f172a', ['A RANK-S DUNGEON BREAK?!', 'EVERYONE, FALL BACK', 'IMMEDIATELY!']);
+        drawSpeechBubble(ctx, 210, 355, 165, 78, '#09090b', '#38bdf8', ['NO... I\'M NOT', 'RUNNING AWAY', 'ANYMORE.']);
+        drawSpeechBubble(ctx, 430, 865, 215, 88, '#ffffff', '#0f172a', ['SYSTEM ALERT:', 'PLAYER HAS AWAKENED', 'SHADOW MONARCH POWER!']);
+      } else {
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(0, 0, 720, 1040);
+        const fire = ctx.createRadialGradient(360, 540, 20, 360, 540, 380);
+        fire.addColorStop(0, '#dc2626');
+        fire.addColorStop(0.6, '#7f1d1d');
+        fire.addColorStop(1, '#09090b');
+        ctx.fillStyle = fire;
+        ctx.fillRect(20, 20, 680, 1000);
+
+        drawSpeechBubble(ctx, 245, 210, 185, 88, '#ffffff', '#000000', ['EVEN IF THIS BODY', 'TURNS TO ASHES...', 'I WILL PROTECT HER!']);
+        drawSpeechBubble(ctx, 475, 535, 180, 85, '#09090b', '#fca5a5', ['FOOLISH HUMAN!', 'YOU DARE CHALLENGE', 'THE DEMON KING?!']);
+        drawSpeechBubble(ctx, 340, 845, 210, 85, '#ffffff', '#000000', ['WATCH ME BREAK YOUR', 'THRONE INTO PIECES!']);
+      }
+      return canvas.toDataURL('image/png');
+    }
+
+    function drawSpeechBubble(ctx, cx, cy, rx, ry, bg, fg, lines) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fillStyle = bg;
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = bg === '#ffffff' ? '#000000' : '#52525b';
+      ctx.stroke();
+
+      ctx.fillStyle = fg;
+      ctx.font = 'bold 21px "Comic Neue", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const lineHeight = 25;
+      const startY = cy - ((lines.length - 1) * lineHeight) / 2;
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, cx, startY + idx * lineHeight);
+      });
+      ctx.restore();
+    }
+
+    let pages = [];
+    let currentPageIdx = 0;
+    let readingDirection = 'manga';
+    let showOriginal = false;
+    let bubbleFontSize = 12;
+
+    const SAMPLE_NOVEL_TEXT = `Chapter 42: The Awakening at Midnight
+
+The rain poured relentlessly over the ruined streets of Neo-Delhi as Arjun gripped the broken hilt of his sword. Three S-Rank hunters lay unconscious behind him, and the Abyssal Dragon towered above the crumbling flyover, its golden eyes locked onto him.
+
+"You really think a Level 1 F-Rank trash like you can scratch my scales?" the dragon roared, shaking the very ground beneath Arjun's boots.
+
+Arjun wiped the blood from his lip and smiled faintly. "Maybe five minutes ago, I couldn't. But you made one fatal mistake—you let me survive long enough to hear the System's voice."
+
+[Ding! Hidden Quest Completed: Defy Death Alone.]
+[Reward Unlocked: Sovereign's Black Lightning.]
+
+Blue sparks erupted around Arjun's coat, turning the falling raindrops into steam before they could even touch him.`;
+
+    let novelOriginalText = SAMPLE_NOVEL_TEXT;
+    let novelHinglishText = '';
+    let showingNovelOriginal = false;
+    let novelFontSize = 16;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateApiIndicator();
+      loadSample(0);
+      loadSampleNovel();
+    });
+
+    function switchAppMode(mode) {
+      const comicSec = document.getElementById('comicSection');
+      const novelSec = document.getElementById('novelSection');
+      const tabC = document.getElementById('tabComic');
+      const tabN = document.getElementById('tabNovel');
+
+      if (mode === 'comic') {
+        comicSec.classList.remove('hidden');
+        novelSec.classList.add('hidden');
+        novelSec.classList.remove('flex');
+        tabC.className = 'px-2.5 py-1 rounded-md text-xs font-bold bg-orange-500 text-white transition';
+        tabN.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-zinc-400 hover:text-white transition';
+      } else {
+        comicSec.classList.add('hidden');
+        novelSec.classList.remove('hidden');
+        novelSec.classList.add('flex');
+        tabN.className = 'px-2.5 py-1 rounded-md text-xs font-bold bg-orange-500 text-white transition';
+        tabC.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-zinc-400 hover:text-white transition';
+      }
+    }
+
+    function setDirection(dir) {
+      readingDirection = dir;
+      const btnManhwa = document.getElementById('dirManhwa');
+      const btnManga = document.getElementById('dirManga');
+      if (dir === 'manhwa') {
+        btnManhwa.className = 'px-2 py-1 rounded text-[11px] font-bold bg-zinc-800 text-orange-400 transition';
+        btnManga.className = 'px-2 py-1 rounded text-[11px] font-semibold text-zinc-400 hover:text-white transition';
+      } else {
+        btnManga.className = 'px-2 py-1 rounded text-[11px] font-bold bg-zinc-800 text-orange-400 transition';
+        btnManhwa.className = 'px-2 py-1 rounded text-[11px] font-semibold text-zinc-400 hover:text-white transition';
+      }
+      if (pages[currentPageIdx]?.bubbles?.length) {
+        sortAndRenderBubbles();
+      }
+    }
+    function loadSample(idx) {
+      [0, 1, 2].forEach((i) => {
+        const b = document.getElementById(`sampleBtn${i}`);
+        if (i === idx) {
+          b.className = 'shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40';
+        } else {
+          b.className = 'shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-zinc-900 text-zinc-400 border border-zinc-800';
+        }
+      });
+
+      setDirection(idx === 0 ? 'manga' : 'manhwa');
+      pages = [{ dataUrl: createSamplePageDataURL(idx), bubbles: [], translated: false }];
+      currentPageIdx = 0;
+      renderCurrentPage();
+    }
+
+    function handleImageUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      Promise.all(
+        files.map(
+          (file) =>
+            new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve({ dataUrl: e.target.result, bubbles: [], translated: false });
+              reader.readAsDataURL(file);
+            })
+        )
+      ).then((loaded) => {
+        pages = loaded;
+        currentPageIdx = 0;
+        renderCurrentPage();
+        showComicStatus(`📁 ${pages.length} page(s) loaded! Tap "✨ Translate Bubbles" to convert.`, 'info');
+      });
+    }
+
+    function renderCurrentPage() {
+      const page = pages[currentPageIdx];
+      if (!page) return;
+      document.getElementById('comicImage').src = page.dataUrl;
+
+      const multiBar = document.getElementById('multiPageBar');
+      if (pages.length > 1) {
+        multiBar.classList.remove('hidden');
+        multiBar.classList.add('flex');
+        document.getElementById('pageIndicator').textContent = `Page ${currentPageIdx + 1} of ${pages.length}`;
+      } else {
+        multiBar.classList.add('hidden');
+      }
+
+      sortAndRenderBubbles();
+    }
+
+    function prevPage() {
+      if (currentPageIdx > 0) {
+        currentPageIdx--;
+        renderCurrentPage();
+      }
+    }
+
+    function nextPage() {
+      if (currentPageIdx < pages.length - 1) {
+        currentPageIdx++;
+        renderCurrentPage();
+      }
+    }
+
+    function updateBubbleFontSize(val) {
+      bubbleFontSize = Number(val);
+      document.querySelectorAll('.bubble-overlay').forEach((el) => {
+        el.style.fontSize = `${bubbleFontSize}px`;
+      });
+    }
+
+    function setShowOriginal(flag) {
+      showOriginal = flag;
+      const layer = document.getElementById('bubblesLayer');
+      layer.style.opacity = showOriginal ? '0' : '1';
+    }
+
+    function toggleOriginalClick() {
+      setShowOriginal(!showOriginal);
+    }
+
+    function showComicStatus(msg, type = 'info') {
+      const box = document.getElementById('comicStatus');
+      box.classList.remove('hidden', 'bg-red-950/70', 'border-red-700', 'text-red-200', 'bg-emerald-950/70', 'border-emerald-700', 'text-emerald-200', 'bg-zinc-900', 'border-zinc-700', 'text-zinc-200');
+      if (type === 'error') {
+        box.classList.add('bg-red-950/70', 'border-red-700', 'text-red-200');
+      } else if (type === 'success') {
+        box.classList.add('bg-emerald-950/70', 'border-emerald-700', 'text-emerald-200');
+      } else {
+        box.classList.add('bg-zinc-900', 'border-zinc-700', 'text-zinc-200');
+      }
+      box.textContent = msg;
+    }
+
+    async function translateCurrentPage() {
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        openApiModal();
+        showComicStatus('⚠️ Pehle apni free Gemini API Key save karein (upar ⚙️ Key button se).', 'error');
+        return;
+      }
+
+      const page = pages[currentPageIdx];
+      if (!page) return;
+
+      const btn = document.getElementById('translateComicBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Reading Bubbles...';
+      showComicStatus('🔍 AI speech bubbles detect karke Hinglish mein translate kar raha hai...', 'info');
+
+      try {
+        const base64Data = page.dataUrl.split(',')[1];
+        const mimeType = page.dataUrl.split(';')[0].split(':')[1] || 'image/png';
+        const tone = document.getElementById('comicTone').value;
+
+        const tonePrompt =
+          tone === 'dramatic'
+            ? 'intense, heroic, dramatic anime/manhwa Hinglish (like "Main tujhe ek kadam bhi aage nahi badhne doonga!")'
+            : tone === 'casual'
+            ? 'fun, expressive everyday desi Hinglish'
+            : 'natural, emotional conversational Hinglish (Roman Hindi script only, NEVER Devanagari)';
+
+        const prompt = `You are a professional Manga and Manhwa typesetter & translator.
+Analyze this comic page image and detect EVERY speech bubble or dialogue box containing text (English, Japanese, or Korean).
+
+For each speech bubble, return a JSON array of objects with:
+- "original": exact text inside the bubble
+- "hinglish": natural translation in ${tonePrompt}. Keep it punchy and concise so it fits nicely inside the speech bubble! Use ONLY English/Latin alphabet (Roman Hindi), NEVER Devanagari script.
+- "box_2d": [ymin, xmin, ymax, xmax] normalized from 0 to 1000 tightly covering the text area inside the speech bubble so we can replace the original text cleanly.
+- "bg_color": hex background color of the inside of that bubble (usually "#ffffff" for white bubbles or "#09090b" for black/dark bubbles).
+- "text_color": hex text color with high contrast against bg_color (e.g. "#09090b" on white, "#ffffff" on black).
+
+Return ONLY valid JSON array, no markdown fences or extra commentary.`;
+
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mimeType, data: base64Data } }
+                  ]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.3,
+                responseMimeType: 'application/json'
+              }
+            })
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error?.message || 'API request failed');
+        }
+
+        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+        const cleaned = rawText.replace(/```json|```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+
+        page.bubbles = Array.isArray(parsed) ? parsed : [];
+        page.translated = true;
+        showOriginal = false;
+        document.getElementById('bubblesLayer').style.opacity = '1';
+
+        sortAndRenderBubbles();
+        showComicStatus(`✅ ${page.bubbles.length} speech bubbles seedha bubble ke andar Hinglish mein translate ho gaye!`, 'success');
+      } catch (err) {
+        console.error(err);
+        showComicStatus(`❌ Error: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Translate Bubbles';
+      }
+    }
+
+    function sortAndRenderBubbles() {
+      const page = pages[currentPageIdx];
+      const layer = document.getElementById('bubblesLayer');
+      const list = document.getElementById('dialogueList');
+      const badge = document.getElementById('bubbleCountBadge');
+
+      layer.innerHTML = '';
+      list.innerHTML = '';
+
+      if (!page || !page.bubbles || !page.bubbles.length) {
+        badge.textContent = '0 bubbles';
+        list.innerHTML = '<p class="text-zinc-500 italic">Click "✨ Translate Bubbles" above to translate speech bubbles directly inside the image.</p>';
+        return;
+      }
+
+      const sorted = [...page.bubbles].sort((a, b) => {
+        const [ay1, ax1] = a.box_2d || [0, 0, 0, 0];
+        const [by1, bx1] = b.box_2d || [0, 0, 0, 0];
+        if (readingDirection === 'manga') {
+          if (Math.abs(ay1 - by1) > 180) return ay1 - by1;
+          return bx1 - ax1;
+        } else {
+          if (Math.abs(ay1 - by1) > 80) return ay1 - by1;
+          return ax1 - bx1;
+        }
+      });
+
+      badge.textContent = `${sorted.length} bubbles`;
+
+      sorted.forEach((b, idx) => {
+        if (!b.box_2d || b.box_2d.length < 4) return;
+        const [ymin, xmin, ymax, xmax] = b.box_2d;
+
+        const topPct = Math.max(0, ymin / 10 - 0.6);
+        const leftPct = Math.max(0, xmin / 10 - 0.8);
+        const heightPct = Math.min(100 - topPct, (ymax - ymin) / 10 + 1.2);
+        const widthPct = Math.min(100 - leftPct, (xmax - xmin) / 10 + 1.6);
+
+        const div = document.createElement('div');
+        div.className = 'bubble-overlay comic-font';
+        div.style.top = `${topPct}%`;
+        div.style.left = `${leftPct}%`;
+        div.style.width = `${widthPct}%`;
+        div.style.height = `${heightPct}%`;
+        div.style.backgroundColor = b.bg_color || '#ffffff';
+        div.style.color = b.text_color || '#09090b';
+        div.style.fontSize = `${bubbleFontSize}px`;
+        div.textContent = b.hinglish || b.original;
+        layer.appendChild(div);
+
+        const item = document.createElement('div');
+        item.className = 'bg-zinc-950/90 border border-zinc-800 rounded-lg p-2 flex items-start gap-2';
+        item.innerHTML = `
+          <span class="shrink-0 w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 font-bold text-[11px] flex items-center justify-center">${idx + 1}</span>
+          <div class="flex-1">
+            <p class="text-zinc-100 font-semibold">${escapeHtml(b.hinglish || '')}</p>
+            <p class="text-[11px] text-zinc-500 mt-0.5">${escapeHtml(b.original || '')}</p>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function loadSampleNovel() {
+      novelOriginalText = SAMPLE_NOVEL_TEXT;
+      novelHinglishText = '';
+      showingNovelOriginal = true;
+      document.getElementById('novelReaderBox').textContent = novelOriginalText;
+    }
+
+    function openNovelInputModal() {
+      document.getElementById('novelRawInput').value = novelOriginalText;
+      document.getElementById('novelModal').classList.remove('hidden');
+    }
+
+    function closeNovelInputModal() {
+      document.getElementById('novelModal').classList.add('hidden');
+    }
+
+    function handleNovelFileUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('novelRawInput').value = ev.target.result;
+      };
+      reader.readAsText(file);
+    }
+
+    function saveNovelInput() {
+      const txt = document.getElementById('novelRawInput').value.trim();
+      if (!txt) return;
+      novelOriginalText = txt;
+      novelHinglishText = '';
+      showingNovelOriginal = true;
+      document.getElementById('novelReaderBox').textContent = novelOriginalText;
+      closeNovelInputModal();
+    }
+
+    function setNovelTheme(theme) {
+      const box = document.getElementById('novelReaderBox');
+      box.classList.remove('bg-zinc-900', 'text-zinc-100', 'border-zinc-800', 'bg-[#f4ecd8]', 'text-[#2c2216]', 'border-amber-300', 'bg-white', 'text-zinc-900', 'border-zinc-300');
+      if (theme === 'sepia') {
+        box.classList.add('bg-[#f4ecd8]', 'text-[#2c2216]', 'border-amber-300');
+      } else if (theme === 'light') {
+        box.classList.add('bg-white', 'text-zinc-900', 'border-zinc-300');
+      } else {
+        box.classList.add('bg-zinc-900', 'text-zinc-100', 'border-zinc-800');
+      }
+    }
+
+    function changeNovelFont(delta) {
+      novelFontSize = Math.min(24, Math.max(13, novelFontSize + delta));
+      document.getElementById('novelReaderBox').style.fontSize = `${novelFontSize}px`;
+    }
+
+    function toggleNovelOriginal() {
+      if (!novelHinglishText) return;
+      showingNovelOriginal = !showingNovelOriginal;
+      document.getElementById('novelReaderBox').textContent = showingNovelOriginal ? novelOriginalText : novelHinglishText;
+      document.getElementById('toggleNovelOrigBtn').textContent = showingNovelOriginal ? 'Show Hinglish' : 'Show Original';
+    }
+
+    async function translateNovelChapter() {
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        openApiModal();
+        return;
+      }
+      if (!novelOriginalText.trim()) return;
+
+      const btn = document.getElementById('translateNovelBtn');
+      const status = document.getElementById('novelStatus');
+      btn.disabled = true;
+      btn.textContent = '⏳ Translating Story...';
+      status.classList.remove('hidden');
+      status.className = 'text-xs px-3 py-2 rounded-lg border bg-zinc-900 border-zinc-700 text-zinc-200';
+      status.textContent = '📖 Poora chapter natural story-telling Hinglish mein translate ho raha hai...';
+
+      try {
+        const prompt = `Translate the following Light Novel / Web Novel chapter into natural, immersive, emotional Hinglish (Roman Hindi written in English alphabet ONLY — NEVER use Devanagari script).
+Keep character names, RPG/System terms (like Level, S-Rank, Skill), and paragraph breaks intact. Make dialogues feel natural and gripping like a great Indian web-novel translation.
+
+Chapter Text:
+${novelOriginalText}`;
+
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.45 }
+            })
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error?.message || 'Translation failed');
+
+        novelHinglishText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        showingNovelOriginal = false;
+        document.getElementById('novelReaderBox').textContent = novelHinglishText;
+        document.getElementById('toggleNovelOrigBtn').textContent = 'Show Original';
+
+        status.className = 'text-xs px-3 py-2 rounded-lg border bg-emerald-950/70 border-emerald-700 text-emerald-200';
+        status.textContent = '✅ Chapter Hinglish mein ready hai! Enjoy reading.';
+      } catch (err) {
+        status.className = 'text-xs px-3 py-2 rounded-lg border bg-red-950/70 border-red-700 text-red-200';
+        status.textContent = `❌ Error: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✨ Translate Chapter to Hinglish';
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+  </script>
+</body>
+</html>
